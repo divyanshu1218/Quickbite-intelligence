@@ -1,0 +1,63 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #faf9f6;
+  font-family: 'Inter', sans-serif;
+  color: #111827; /* Solid crisp black/charcoal text */
+}
+
+/* Force dark high-contrast text for Recharts Tooltips */
+.recharts-default-tooltip {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  color: #111827 !important;
+  padding: 8px 12px !important;
+}
+
+.recharts-tooltip-label,
+.recharts-tooltip-item,
+.recharts-tooltip-item-name,
+.recharts-tooltip-item-value {
+  color: #111827 !important;
+  font-weight: 600 !important;
+}
+
+.recharts-legend-item-text {
+  color: #111827 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: #374151 !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+/* Micro-animations and custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.transition-all-ease {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}

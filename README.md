@@ -103,93 +103,88 @@ The ingestion pipeline (`scripts/ingest_dataset.py`) parses `QSR_Agentic_Insight
 ---
 
 ## Verification & Testing
+# QuickBite Intelligence
 
-### Backend Unit & Agent Integration Tests
+Executive-grade decision-support analytics platform tailored for Quick Service Restaurants (QSR).
+
+QuickBite Intelligence combines deterministic, SQL-first analytics (DuckDB) with stateful agent orchestration and a React + Tailwind executive dashboard. The system separates deterministic calculation from natural-language synthesis so analytical outputs remain reproducible and auditable.
+
+Highlights
+- Deterministic NL→SQL engine for fast, auditable queries
+- Multi-store comparative analysis and performance scoring
+- Smart interventional recommendation engine with estimated financial impact
+- Interactive Time Machine for temporal scrubbing and causal inspection
+- Lightweight, embedded DuckDB for local analytics and reproducible results
+
+Repository
+- GitHub: https://github.com/divyanshu1218/Quickbite-intelligence
+
+Quick start
+1. Clone the repo
+
 ```bash
-python -m unittest tests/test_analytical_tools.py tests/test_agent_flow.py
+git clone https://github.com/divyanshu1218/Quickbite-intelligence.git
+cd Quickbite-intelligence
 ```
-*Result*: 13/13 tests passing cleanly.
 
-### Frontend Production Build
-```bash
-cd frontend
-npm run build
-```
-*Result*: Production bundle compiled with zero errors in <1.0 second.
+2. Backend (Python)
 
----
-
-## Environment Setup & Execution
-
-### Prerequisites
-* Python 3.10+
-* Node.js v18+ & npm
-* Groq API Key (`GROQ_API_KEY`)
-
-### 1. Backend Ingestion & Server Launch
-
-> [!IMPORTANT]
-> **Execution Directory**: Always run all python, script, and uvicorn commands from the **root directory** of the repository (`illuminati/`). Do NOT `cd backend/` to run uvicorn, otherwise Python will throw a `ModuleNotFoundError`.
+Prereqs: Python 3.10+ (recommend creating a virtualenv)
 
 ```bash
-# Clone repository
-git clone https://github.com/your-org/illuminati.git
-cd illuminati
+# create & activate venv (example for Windows PowerShell):
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 
-# Install Python dependencies
-pip install fastapi uvicorn duckdb langgraph langchain-groq pydantic pandas openpyxl
+# Install dependencies (if you keep a requirements.txt, prefer that):
+pip install fastapi uvicorn duckdb pandas pydantic openpyxl
 
-# Set API Key
-export GROQ_API_KEY="your_groq_api_key"  # On Windows PowerShell: $env:GROQ_API_KEY="your_groq_api_key"
+# set GROQ API key (PowerShell):
+$env:GROQ_API_KEY="your_groq_api_key"
 
-# Run Data Ingestion Pipeline
+# Run data ingestion (builds data/qsr.duckdb)
 python scripts/ingest_dataset.py
 
-# Start FastAPI Application Server (Run from root!)
+# Start backend server (run from project root)
 uvicorn backend.app:app --reload --port 8000
 ```
 
-### 2. Frontend Launch
+3. Frontend (Node / Vite)
+
+Prereqs: Node.js v18+
+
 ```bash
 cd frontend
 npm install
 npm run dev
+# open http://localhost:5173
 ```
-Navigate to `http://localhost:5173` in your web browser.
 
----
+Notes
+- Keep any `.env` or secret files untracked (root `.gitignore` includes `.env`).
+- The backend expects the embedded DuckDB at `data/qsr.duckdb` after running the ingestion script.
 
-## Repository Structure
+Useful commands
+- Run backend tests:
 
-```text
-├── architecture.md             # Detailed Multi-Agent Architectural Specification
-├── README.md                   # Enterprise System Documentation
-├── backend/
-│   ├── app.py                  # FastAPI Application Entrypoint & Routes
-│   ├── agents/                 # LangGraph Agent Nodes & Graph Orchestration
-│   │   ├── graph.py            # Workflow State Machine Compilation
-│   │   ├── orchestrator.py     # Intent Classification Node
-│   │   ├── analyst.py          # Data Execution Node
-│   │   ├── diagnostics_agent.py# Observational Signal Diagnostics Node
-│   │   ├── verifier.py         # Verification Firewall Node
-│   │   └── synthesizer.py      # Response Synthesis Node
-│   ├── data/
-│   │   └── database.py         # Read-Only DuckDB Connection Pool Manager
-│   ├── models/
-│   │   └── schemas.py          # Pydantic API Data Contracts
-│   ├── tools/                  # Deterministic SQL Analytics Engines
-│   └── utils/
-│       └── dates.py            # Dynamic Date Range Resolvers
-├── data/
-│   └── qsr.duckdb              # Ingested Read-Only Analytics Database
-├── frontend/                   # React + Vite + Tailwind CSS Frontend
-│   ├── src/
-│   │   ├── components/         # Reusable UI Components (TrendTracker, TimeMachine, etc.)
-│   │   ├── pages/              # Executive Dashboard Views
-│   │   └── services/           # Async API Client Integration
-├── scripts/
-│   └── ingest_dataset.py       # Excel-to-DuckDB ETL Pipeline
-└── tests/                      # Automated Test Suites
+```bash
+python -m unittest tests/test_analytical_tools.py tests/test_agent_flow.py
 ```
-#   Q u i c k b i t e - i n t e l l i g e n c e  
- 
+
+Project layout (top-level)
+
+```
+├── architecture.md
+├── README.md
+├── backend/                # FastAPI server, agents, tools, utils
+├── frontend/               # React + Vite + Tailwind app
+├── scripts/                # ingestion & data prep scripts
+├── data/                   # prebuilt DuckDB: data/qsr.duckdb
+└── tests/                  # unit & integration tests
+```
+
+If you'd like, I can:
+- generate a `requirements.txt` from the Python imports in `backend/` and `scripts/`
+- create a short `CONTRIBUTING.md` and `ISSUE_TEMPLATE`
+
+License: MIT (add or change as desired)
