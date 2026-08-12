@@ -1,9 +1,12 @@
 import os
+import sys
+import subprocess
+from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from backend.models.schemas import QueryRequest, QueryResponse
 from backend.agents.graph import run_agent_pipeline
-from backend.data.database import DatabaseManager
+from backend.data.database import DatabaseManager, DB_PATH
 from backend.utils.dates import resolve_period_last_n_months
 from backend.tools.stores import get_consistently_declining_stores
 from backend.tools.cities import get_city_revenue_trend
@@ -14,6 +17,22 @@ app = FastAPI(
     description="Evidence-First Agentic QSR Analytics Server",
     version="1.0"
 )
+
+# Ensure the DuckDB database exists in deployment environments.
+# If data/qsr.duckdb is missing, attempt ingestion from the committed Excel dataset.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+EXCEL_PATH = PROJECT_ROOT / "QSR_Agentic_Insights_Dataset.xlsx"
+
+if not Path(DB_PATH).exists():
+    if EXCEL_PATH.exists():
+        print("DuckDB file missing; ingesting from committed Excel dataset...")
+        subprocess.run([sys.executable, str(PROJECT_ROOT / "scripts" / "ingest_dataset.py")], check=True)
+    else:
+        raise RuntimeError(
+            f"Required DuckDB file not found at {DB_PATH}. "
+            "Please include QSR_Agentic_Insights_Dataset.xlsx in the repository root."
+        )
+
 
 # Enable CORS for frontend integration (Netlify + local dev)
 app.add_middleware(
