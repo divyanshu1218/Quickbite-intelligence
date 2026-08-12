@@ -5,6 +5,7 @@ pandas
 pydantic
 openpyxl
 python-dotenv
+python-dateutil
 langgraph
 langchain-groq
 typing-extensions
