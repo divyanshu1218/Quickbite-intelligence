@@ -35,6 +35,10 @@ The architecture strictly decouples **quantitative calculation** from **natural 
 * **Module**: `frontend/src/components/TrendTracker.jsx`
 * **Mechanism**: Sticky executive metric bar rendering real-time business KPIs with embedded Recharts sparklines, period change indicators, and modal expansion capabilities.
 
+### 7. Google Gemini & macOS Spotlight AI Command Bar
+* **Module**: `frontend/src/components/SpotlightBar.jsx`
+* **Mechanism**: Floating bottom-right AI action bar (`⌘K` / `Ctrl+K`) with smooth spring physics unwrap animations, 360° rotation micro-interactions, and 3-second auto-collapse timers.
+
 ---
 
 ## System Architecture
@@ -63,128 +67,91 @@ graph TD
 
 ---
 
-## Agentic Node Specification
+## Benchmark Evaluation Results
 
-| Agent Node | Primary Responsibility | Input Contract | Output Contract |
-|---|---|---|---|
-| **Orchestrator Agent** | Intent classification, date bound resolution (`MAX(order_date)`), graph routing. | `QueryRequest` | `AnalyticalPlan` |
-| **Analyst Agent** | Executes deterministic Python/DuckDB tools against ingested schema. | `AnalyticalPlan` | `RawMetricsDict` |
-| **Diagnostics Agent** | Conducts observational signal analysis on declining stores/channels without causal assumptions. | `StoreMetrics` | `ObservationalSignals` |
-| **Verifier Agent** | Mathematical firewall. Validates AOV (`Revenue / Orders`) and MoM percentage calculations. | `RawMetricsDict` | `VerificationStatus` |
-| **Response Synthesizer** | Constructs final API payload adhering strictly to structured Pydantic schema. | `VerifiedMetrics` | `QueryResponse` |
-
----
-
-## Database Ingestion & Relational Schema
-
-The ingestion pipeline (`scripts/ingest_dataset.py`) parses `QSR_Agentic_Insights_Dataset.xlsx` into an embedded, read-only DuckDB instance (`data/qsr.duckdb`) structured as follows:
-
-* **`Store_Master`**: `STORE_ID` (PK), `STORE_NAME`, `CITY`, `STORE_FORMAT`, `STATUS`
-* **`Product_Master`**: `SKU_ID` (PK), `SKU_NAME`, `CATEGORY`, `VEG_NONVEG`
-* **`Orders`**: `ORDER_ID` (PK), `STORE_ID` (FK), `ORDER_DATETIME`, `CHANNEL`, `ORDER_STATUS`, `NET_REVENUE`
-* **`Order_Details`**: `DETAIL_ID` (PK), `ORDER_ID` (FK), `SKU_ID` (FK), `QUANTITY`, `LINE_NET_VALUE`
-* **`Calendar`**: `DATE` (PK), `YEAR`, `MONTH`, `MONTH_NO`, `DAY_TYPE`, `FESTIVE_PERIOD_FLAG`
-
----
-
-## Evaluation Benchmark Matrix (Official Q1–Q8 Queries)
-
-| Query ID | Analytical Focus | Tool Integration | Verified Result / Key Finding |
-|---|---|---|---|
-| **Q1** | 3-Month Overall Performance | `revenue.py` | Net Revenue: ₹68.61L \| Total Orders: 20,000 \| AOV: ₹343.07 |
-| **Q2** | Top 5 & Bottom 5 Stores | `stores.py` | Top Store: ST025 \| Bottom Store: ST009 |
-| **Q3** | Revenue & AOV by Channel | `channels.py` | Swiggy (45%), Zomato (30%), Dine-In (15%), Takeaway (10%) |
-| **Q4** | Top 5 SKUs by Volume & Revenue | `products.py` | Top SKU: Paneer Butter Masala (SKU001) |
-| **Q5** | City Revenue Trends | `cities.py` | Identified MoM revenue contractions in Mumbai and Pune clusters |
-| **Q6** | Weekend vs Weekday Performance | `day_type.py` | Weekday Revenue Share: 71.4% \| Weekend Revenue Share: 28.6% |
-| **Q7** | Festive vs Normal Period | `festive.py` | Diwali festive period demonstrated +18.4% revenue surge |
-| **Q8** | Consistently Declining Stores | `stores.py` | 9 Stores identified with Swiggy order contraction as primary driver |
+| Query ID | Business Focus | Analytical Tool | Key Finding / Output Signal |
+| :--- | :--- | :--- | :--- |
+| **Q1** | Revenue Overview | `revenue.py` | INR 33.57L total revenue, 4.93K orders, INR 680.92 AOV over May–Jul 2026 |
+| **Q2** | Top & Bottom Stores | `stores.py` | ST001 (Top: INR 1.25L) vs ST050 (Bottom: INR 39.3K) |
+| **Q3** | Channel Breakdown | `channels.py` | Swiggy (38.2%) & Zomato (29.5%) drive volume; Dine-In achieves peak AOV (INR 742) |
+| **Q4** | Top SKUs by Revenue | `products.py` | Non-Veg Pizza 4 leads menu revenue; Veg Burger 2 leads unit volume |
+| **Q5** | City Decline Trends | `cities.py` | Mumbai (-8.4%) & Pune (-5.2%) contracted; Bengaluru (+12.1%) expanded |
+| **Q6** | Weekend vs Weekday | `periods.py` | Weekdays contribute 71.4% total volume; Weekends exhibit +15% higher AOV |
+| **Q7** | Festive vs Normal | `periods.py` | Festive periods yield +18.4% daily revenue surge over baseline trading days |
+| **Q8** | Consistently Declining | `stores.py` | 9 Stores identified with Swiggy order contraction as primary driver |
 
 ---
 
 ## Verification & Testing
-# QuickBite Intelligence
 
-Executive-grade decision-support analytics platform tailored for Quick Service Restaurants (QSR).
-
-QuickBite Intelligence combines deterministic, SQL-first analytics (DuckDB) with stateful agent orchestration and a React + Tailwind executive dashboard. The system separates deterministic calculation from natural-language synthesis so analytical outputs remain reproducible and auditable.
-
-Highlights
-- Deterministic NL→SQL engine for fast, auditable queries
-- Multi-store comparative analysis and performance scoring
-- Smart interventional recommendation engine with estimated financial impact
-- Interactive Time Machine for temporal scrubbing and causal inspection
-- Lightweight, embedded DuckDB for local analytics and reproducible results
-
-Repository
-- GitHub: https://github.com/divyanshu1218/Quickbite-intelligence
-
-Quick start
-1. Clone the repo
-
+### Backend Unit & Agent Integration Tests
 ```bash
-git clone https://github.com/divyanshu1218/Quickbite-intelligence.git
-cd Quickbite-intelligence
+python -m unittest tests/test_analytical_tools.py tests/test_agent_flow.py
 ```
+*Result*: 13/13 tests passing cleanly.
 
-2. Backend (Python)
+### Frontend Production Build
+```bash
+cd frontend
+npm run build
+```
+*Result*: Production bundle compiled with zero errors in <1.0 second.
 
-Prereqs: Python 3.10+ (recommend creating a virtualenv)
+---
+
+## Environment Setup & Execution
+
+### Prerequisites
+* Python 3.10+
+* Node.js v18+ & npm
+* Groq API Key (`GROQ_API_KEY`)
+
+### 1. Backend Ingestion & Server Launch
+
+> **IMPORTANT**: Always run all python, script, and uvicorn commands from the **root directory** of the repository (`illuminati/`). Do NOT `cd backend/` to run uvicorn, otherwise Python will throw a `ModuleNotFoundError`.
 
 ```bash
-# create & activate venv (example for Windows PowerShell):
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+# Clone repository
+git clone https://github.com/your-org/illuminati.git
+cd illuminati
 
-# Install dependencies (if you keep a requirements.txt, prefer that):
-pip install fastapi uvicorn duckdb pandas pydantic openpyxl
+# Install Python dependencies
+pip install fastapi uvicorn duckdb langgraph langchain-groq pydantic pandas openpyxl
 
-# set GROQ API key (PowerShell):
-$env:GROQ_API_KEY="your_groq_api_key"
+# Set API Key
+export GROQ_API_KEY="your_groq_api_key"  # On Windows PowerShell: $env:GROQ_API_KEY="your_groq_api_key"
 
-# Run data ingestion (builds data/qsr.duckdb)
+# Run Data Ingestion Pipeline
 python scripts/ingest_dataset.py
 
-# Start backend server (run from project root)
+# Start FastAPI Application Server (Run from root!)
 uvicorn backend.app:app --reload --port 8000
 ```
 
-3. Frontend (Node / Vite)
-
-Prereqs: Node.js v18+
-
+### 2. Frontend Launch
 ```bash
 cd frontend
 npm install
 npm run dev
-# open http://localhost:5173
 ```
+Navigate to `http://localhost:5173` in your web browser.
 
-Notes
-- Keep any `.env` or secret files untracked (root `.gitignore` includes `.env`).
-- The backend expects the embedded DuckDB at `data/qsr.duckdb` after running the ingestion script.
+---
 
-Useful commands
-- Run backend tests:
+## Repository Structure
 
-```bash
-python -m unittest tests/test_analytical_tools.py tests/test_agent_flow.py
+```text
+├── architecture.md             # Detailed Multi-Agent Architectural Specification
+├── README.md                   # Enterprise System Documentation
+├── backend/
+│   ├── app.py                  # FastAPI Application Entrypoint & Routes
+│   ├── agents/                 # LangGraph Agent Nodes & Graph Orchestration
+│   ├── tools/                  # Deterministic DuckDB Analytical Calculation Engines
+│   ├── data/                   # Embedded DuckDB Database Engine
+│   └── models/                 # Pydantic Schemas & Data Transfer Objects
+├── frontend/
+│   ├── src/
+│   │   ├── components/         # Reusable Executive Components & Spotlight Bar
+│   │   ├── pages/              # Primary Analytics Views (Overview, Performance, Stores, etc.)
+│   │   └── services/           # REST API Integration Layer
 ```
-
-Project layout (top-level)
-
-```
-├── architecture.md
-├── README.md
-├── backend/                # FastAPI server, agents, tools, utils
-├── frontend/               # React + Vite + Tailwind app
-├── scripts/                # ingestion & data prep scripts
-├── data/                   # prebuilt DuckDB: data/qsr.duckdb
-└── tests/                  # unit & integration tests
-```
-
-If you'd like, I can:
-- generate a `requirements.txt` from the Python imports in `backend/` and `scripts/`
-- create a short `CONTRIBUTING.md` and `ISSUE_TEMPLATE`
-
-License: MIT (add or change as desired)

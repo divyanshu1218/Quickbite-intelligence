@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+duckdb
+pandas
+pydantic
+openpyxl
+python-dotenv
+langgraph
+langchain-groq
+typing-extensions

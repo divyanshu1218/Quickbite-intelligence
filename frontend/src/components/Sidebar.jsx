@@ -1,4 +1,4 @@
-import { BarChart3, LayoutDashboard, Store, ShoppingBag, Radio, Lightbulb } from 'lucide-react';
+import { BarChart3, LayoutDashboard, Store, ShoppingBag, Radio, Lightbulb, Compass } from 'lucide-react';
 
 const navItems = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -9,7 +9,7 @@ const navItems = [
   { id: 'intelligence', label: 'Intelligence', icon: Lightbulb },
 ];
 
-export default function Sidebar({ activeView, onNavigate }) {
+export default function Sidebar({ activeView, onNavigate, onOpenTour }) {
   return (
     <aside className="w-56 bg-white border-r border-gray-200 flex flex-col h-screen fixed left-0 top-0">
       {/* Brand */}
@@ -47,10 +47,24 @@ export default function Sidebar({ activeView, onNavigate }) {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="px-5 py-4 border-t border-gray-100">
-        <p className="text-xs text-gray-400">Aug 2025 – Jul 2026</p>
-        <p className="text-xs text-gray-300">50 stores · 20,000 orders</p>
+      {/* Product Tour Launcher & Footer info */}
+      <div className="p-3 border-t border-gray-100 space-y-3">
+        {onOpenTour && (
+          <button
+            onClick={onOpenTour}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 text-xs font-semibold transition-all cursor-pointer group"
+          >
+            <div className="flex items-center gap-2">
+              <Compass size={15} className="text-brand-600 group-hover:rotate-45 transition-transform" />
+              <span>Product Tour</span>
+            </div>
+            <span className="text-3xs bg-brand-600 text-white font-mono px-1.5 py-0.5 rounded font-bold">FTUE</span>
+          </button>
+        )}
+        <div className="px-2">
+          <p className="text-xs text-gray-500 font-medium">Aug 2025 – Jul 2026</p>
+          <p className="text-xs text-gray-400">50 stores · 20,000 orders</p>
+        </div>
       </div>
     </aside>
   );

@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import TrendTracker from './components/TrendTracker';
 import FilterPanel from './components/FilterPanel';
 import SpotlightBar from './components/SpotlightBar';
+import OnboardingTour from './components/OnboardingTour';
 import OverviewView from './pages/OverviewView';
 import PerformanceView from './pages/PerformanceView';
 import StoresView from './pages/StoresView';
@@ -16,11 +17,18 @@ export default function App() {
   const [overviewData, setOverviewData] = useState(null);
   const [activeFilters, setActiveFilters] = useState({});
   const [activeQuery, setActiveQuery] = useState('');
+  const [isTourOpen, setIsTourOpen] = useState(false);
 
   useEffect(() => {
     fetchOverview()
       .then(setOverviewData)
       .catch((err) => console.error('Failed to load overview for trend tracker:', err));
+
+    // Auto-open Onboarding Tour for First-Time Users if not completed before
+    const hasSeenTour = localStorage.getItem('quickbite_tour_completed');
+    if (!hasSeenTour) {
+      setIsTourOpen(true);
+    }
   }, []);
 
   const handleResetFilters = () => {
@@ -35,7 +43,11 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-charcoal-900 flex font-sans relative">
       {/* Fixed Sidebar */}
-      <Sidebar activeView={activeView} onNavigate={setActiveView} />
+      <Sidebar
+        activeView={activeView}
+        onNavigate={setActiveView}
+        onOpenTour={() => setIsTourOpen(true)}
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 ml-56 flex flex-col min-h-screen">
@@ -64,6 +76,12 @@ export default function App() {
       <SpotlightBar
         onSearch={handleSpotlightSearch}
         placeholder="Ask QuickBite AI (e.g. 'How to increase revenue?')..."
+      />
+
+      {/* Guided First-Time User Experience (FTUE) Product Tour Modal */}
+      <OnboardingTour
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
       />
     </div>
   );
