@@ -1,4 +1,6 @@
 import os
+import sys
+
 import pandas as pd
 import duckdb
 
@@ -8,6 +10,12 @@ def ingest():
     data_dir = os.path.join(project_root, "data")
     os.makedirs(data_dir, exist_ok=True)
     db_path = os.path.join(data_dir, "qsr.duckdb")
+
+    if not os.path.exists(excel_path):
+        raise FileNotFoundError(
+            f"Excel file not found at {excel_path}.\n"
+            "Please add QSR_Agentic_Insights_Dataset.xlsx to the repository root before running ingestion."
+        )
 
     if os.path.exists(db_path):
         os.remove(db_path)
