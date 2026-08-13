@@ -67,6 +67,82 @@ graph TD
 
 ---
 
+## Project Context Index: Files by Topic
+
+This project is organized so that an evaluator can quickly locate the relevant code by responsibility instead of reading the entire repository.
+
+### 1) API entrypoints & app runtime
+- `backend/app.py` — FastAPI server, health endpoints, overview/product routes, and database bootstrap logic.
+- `backend/config.py` — environment configuration for API keys and model selection.
+- `scripts/ingest_dataset.py` — ETL pipeline that loads the Excel dataset into DuckDB.
+- `scripts/generate_pdf.py` and `generate_architecture_pdf.py` — export/report generation utilities for documentation and architecture artifact creation.
+
+### 2) Agent orchestration and reasoning flow
+- `backend/agents/orchestrator.py` — orchestrator agent; classifies natural-language questions into supported analytical intents and resolves date ranges.
+- `backend/agents/graph.py` — LangGraph workflow definition; links orchestrator → analyst → diagnostics → verifier → synthesizer.
+- `backend/agents/analyst.py` — analyst node; calls the deterministic analytical tools based on the chosen intent.
+- `backend/agents/diagnostics_agent.py` — diagnostic node; interprets declining-store data and summarizes likely drivers.
+- `backend/agents/verifier.py` — verification node; checks analytical results before synthesis.
+- `backend/agents/synthesizer.py` — final response builder that converts verified metrics into structured output.
+
+### 3) Deterministic data tools and business analytics logic
+- `backend/tools/nl_to_sql.py` — rule-based natural-language to SQL intent mapping and parameter extraction.
+- `backend/tools/revenue.py` — total revenue, order volume, and AOV calculations.
+- `backend/tools/stores.py` — store rankings and consistently declining store detection.
+- `backend/tools/channels.py` — channel-level performance breakdowns.
+- `backend/tools/products.py` — top SKUs and category/product revenue analysis.
+- `backend/tools/cities.py` — city revenue trend and decline analysis.
+- `backend/tools/periods.py` — weekday/weekend and festive/normal comparison analysis.
+- `backend/tools/diagnostics.py` — deep metrics for root-cause analysis on declining stores.
+- `backend/tools/recommendations.py` — intervention suggestions and action planning.
+- `backend/tools/comparison.py` — comparative benchmarking across stores or dimensions.
+- `backend/tools/time_machine.py` — temporal analytics and historical navigation support.
+
+### 4) Data layer, schemas, and utility helpers
+- `backend/data/database.py` — DuckDB connection manager and query executor.
+- `data/qsr.duckdb` — embedded analytics database used for production queries.
+- `backend/models/schemas.py` — Pydantic request/response schemas for API contracts.
+- `backend/utils/dates.py` — date helpers for last-N-month selections and time-window resolution.
+
+### 5) Frontend app and user experience layer
+- `frontend/src/App.jsx` — main app shell and route wiring.
+- `frontend/src/pages/OverviewView.jsx` — executive overview dashboard screen.
+- `frontend/src/pages/PerformanceView.jsx` — performance comparison and benchmark views.
+- `frontend/src/pages/StoresView.jsx` — store-level insights and diagnostics.
+- `frontend/src/pages/ProductsView.jsx` — product and SKU analysis.
+- `frontend/src/pages/ChannelsView.jsx` — channel performance analysis.
+- `frontend/src/pages/IntelligenceView.jsx` — AI-driven analytical insights and narratives.
+- `frontend/src/components/FilterPanel.jsx` — filters and drill-down controls.
+- `frontend/src/components/TimeMachineSlider.jsx` — time-scrub view for historical analysis.
+- `frontend/src/components/TrendTracker.jsx` — KPI trend bar and live signal tracking.
+- `frontend/src/components/SpotlightBar.jsx` — AI command bar and interactive launcher.
+- `frontend/src/components/Sidebar.jsx` — left navigation and dashboard structure.
+- `frontend/src/services/api.js` — calls to the backend APIs.
+
+### 6) Evaluation / project trace: where to start reading
+If you are evaluating the project in a focused way, start here:
+1. `backend/agents/orchestrator.py` — question interpretation and intent routing.
+2. `backend/agents/graph.py` — execution path of the LangGraph pipeline.
+3. `backend/agents/analyst.py` — which tool gets executed for each intent.
+4. `backend/tools/*.py` — deterministic calculation logic and SQL-based business metrics.
+5. `backend/agents/diagnostics_agent.py` and `backend/agents/verifier.py` — reasoning and validation layer.
+6. `backend/app.py` — API surface and live dashboard integration.
+7. `frontend/src/pages/` and `frontend/src/components/` — end-user analytics interface.
+
+### 7) High-level responsibility map
+- Intent routing: `backend/agents/orchestrator.py`
+- Execution graph: `backend/agents/graph.py`
+- Analytics retrieval: `backend/agents/analyst.py`
+- Root-cause explanation: `backend/agents/diagnostics_agent.py`
+- Verification: `backend/agents/verifier.py`
+- Final output structure: `backend/agents/synthesizer.py`
+- Business calculations: `backend/tools/`
+- Database access: `backend/data/database.py`
+- API server: `backend/app.py`
+- Dashboard UI: `frontend/src/`
+
+---
+
 ## Benchmark Evaluation Results
 
 | Query ID | Business Focus | Analytical Tool | Key Finding / Output Signal |
